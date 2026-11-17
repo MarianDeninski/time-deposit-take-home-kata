@@ -17,6 +17,8 @@
 
     <properties>
         <java.version>17</java.version>
+        <springdoc.version>2.10.0</springdoc.version>
+        <openapi-generator.version>7.27.0</openapi-generator.version>
     </properties>
 
     <dependencies>
@@ -40,6 +42,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -75,6 +82,37 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- Contract-first: API interfaces and DTOs are generated from the hand-written OpenAPI contract -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator.version}</version>
+                <executions>
+                    <execution>
+                        <id>time-deposits-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/time-deposits.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <apiPackage>org.ikigaidigital.adapter.in.web.api</apiPackage>
+                            <modelPackage>org.ikigaidigital.adapter.in.web.model</modelPackage>
+                            <!-- Avoids a clash with the domain TimeDeposit class -->
+                            <modelNameSuffix>Dto</modelNameSuffix>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useTags>true</useTags>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <openApiNullable>false</openApiNullable>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Runs *IT classes (Testcontainers) during mvn verify; surefire keeps mvn test Docker-free -->
             <plugin>

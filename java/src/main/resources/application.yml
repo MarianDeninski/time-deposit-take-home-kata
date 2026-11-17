@@ -11,3 +11,8 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+
+springdoc:
+  swagger-ui:
+    # Show the hand-written contract instead of one generated from the code
+    url: /openapi/time-deposits.yaml
