@@ -11,11 +11,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Applies one month of interest to each deposit. The public API (no-arg constructor and the
- * updateBalance signature) is unchanged; the plan-specific logic lives in InterestRule
- * implementations so new plans can be added without modifying this class.
- */
 public class TimeDepositCalculator {
 
     private static final int CENTS_SCALE = 2;
