@@ -114,6 +114,25 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Registers the generated sources explicitly so IDEs mark them as a source root on Maven import -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Runs *IT classes (Testcontainers) during mvn verify; surefire keeps mvn test Docker-free -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
