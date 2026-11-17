@@ -2,9 +2,37 @@ openapi: 3.0.3
 info:
   title: Time Deposit API
   version: 1.0.0
+  description: |
+    API of the XA Bank time deposit system. It exposes exactly two operations:
+
+    | Operation | What it does |
+    |---|---|
+    | `GET /time-deposits` | Lists all time deposits with their withdrawals |
+    | `POST /time-deposits/balance-updates` | Applies one month of interest to all time deposits |
+
+    ### Interest rules (monthly, applied by the balance update)
+    | Plan | Annual rate | Paid monthly | Condition |
+    |---|---|---|---|
+    | `basic` | 1% | 1% / 12 | after the first 30 days |
+    | `student` | 3% | 3% / 12 | after the first 30 days, and only up to 365 days (no interest after one year) |
+    | `premium` | 5% | 5% / 12 | only after 45 days |
+
+    No plan earns interest during the first 30 days. Interest is rounded to cents (half up).
+
+    ### Idempotency
+    Interest is applied at most once per calendar month (UTC). Repeated calls within the same month
+    are no-ops and also return `200`, so retries, double clicks or a scheduler firing twice can never
+    credit interest twice.
+
+    ### Try it out
+    Start the app (`docker-compose up -d` and `mvn spring-boot:run`), then use **Try it out** on an
+    operation below. The database is seeded with 11 sample deposits covering every plan boundary.
+servers:
+  - url: http://localhost:8080
+    description: Local development server
 tags:
   - name: TimeDeposits
-    description: Time deposits and their withdrawals
+    description: Time deposits, their withdrawals and the monthly interest run
 paths:
   /time-deposits:
     get:
@@ -12,7 +40,9 @@ paths:
         - TimeDeposits
       operationId: getAllTimeDeposits
       summary: Get all time deposits
-      description: Returns all time deposits, each with its list of withdrawals.
+      description: >
+        Returns all time deposits ordered by id, each with its list of withdrawals.
+        A deposit without withdrawals has an empty `withdrawals` array.
       responses:
         '200':
           description: All time deposits with their withdrawals.
@@ -22,23 +52,55 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TimeDeposit'
+              example:
+                - id: 1
+                  planType: basic
+                  balance: 1000.00
+                  days: 15
+                  withdrawals: []
+                - id: 3
+                  planType: basic
+                  balance: 10000.00
+                  days: 400
+                  withdrawals:
+                    - id: 1
+                      amount: 100.00
+                      date: '2026-01-15'
+                - id: 11
+                  planType: premium
+                  balance: 10000.00
+                  days: 46
+                  withdrawals:
+                    - id: 3
+                      amount: 500.00
+                      date: '2026-02-01'
+                    - id: 4
+                      amount: 200.00
+                      date: '2026-05-20'
   /time-deposits/balance-updates:
     post:
       tags:
         - TimeDeposits
       operationId: updateAllTimeDepositBalances
       summary: Apply one month of interest to all time deposits
-      description: >
-        Applies one month of interest to the balance of every time deposit.
-        Interest is applied at most once per calendar month; repeated calls within the same
-        month are no-ops and also return 200, so retries can never credit interest twice.
+      description: |
+        Applies one month of interest to the balance of every time deposit, using the interest
+        rules described above. No request body is needed.
+
+        Interest is applied at most once per calendar month (UTC). Repeated calls within the same
+        month are no-ops and also return `200`, so interest can never be credited twice.
+        Call `GET /time-deposits` afterwards to see the new balances, for example deposit 3
+        (basic, 400 days) goes from `10000.00` to `10008.33`.
       responses:
         '200':
-          description: Interest for the current month has been applied (now or by an earlier call).
+          description: >
+            Interest for the current month has been applied, either by this call or by an earlier
+            call in the same month. No response body.
 components:
   schemas:
     TimeDeposit:
       type: object
+      description: A time deposit with its current balance and withdrawals.
       required:
         - id
         - planType
@@ -56,7 +118,7 @@ components:
           example: basic
         balance:
           type: number
-          description: Current balance of the time deposit.
+          description: Current balance of the time deposit, with two decimal places.
           example: 1000.00
         days:
           type: integer
@@ -69,6 +131,7 @@ components:
             $ref: '#/components/schemas/Withdrawal'
     Withdrawal:
       type: object
+      description: A withdrawal from a time deposit.
       required:
         - id
         - amount
@@ -80,10 +143,10 @@ components:
           example: 1
         amount:
           type: number
-          description: Amount withdrawn.
+          description: Amount withdrawn, with two decimal places.
           example: 100.00
         date:
           type: string
           format: date
-          description: Date of the withdrawal.
+          description: Date of the withdrawal (ISO 8601).
           example: '2026-01-15'
