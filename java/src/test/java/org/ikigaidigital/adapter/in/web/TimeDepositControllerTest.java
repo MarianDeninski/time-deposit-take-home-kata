@@ -3,6 +3,7 @@ package org.ikigaidigital.adapter.in.web;
 import org.ikigaidigital.TimeDeposit;
 import org.ikigaidigital.application.port.in.GetAllTimeDepositsUseCase;
 import org.ikigaidigital.application.port.in.TimeDepositWithWithdrawals;
+import org.ikigaidigital.application.port.in.UpdateBalancesUseCase;
 import org.ikigaidigital.domain.Withdrawal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,6 +32,9 @@ class TimeDepositControllerTest {
 
     @MockitoBean
     private GetAllTimeDepositsUseCase getAllTimeDepositsUseCase;
+
+    @MockitoBean
+    private UpdateBalancesUseCase updateBalancesUseCase;
 
     @Test
     void getAllTimeDeposits_returnsDepositsWithWithdrawals_whenDepositsExist() throws Exception {
@@ -70,5 +76,13 @@ class TimeDepositControllerTest {
         mockMvc.perform(get("/time-deposits"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]", true));
+    }
+
+    @Test
+    void updateAllTimeDepositBalances_returnsOkAndUpdatesBalances_whenCalled() throws Exception {
+        mockMvc.perform(post("/time-deposits/balance-updates"))
+                .andExpect(status().isOk());
+
+        verify(updateBalancesUseCase).updateBalances();
     }
 }

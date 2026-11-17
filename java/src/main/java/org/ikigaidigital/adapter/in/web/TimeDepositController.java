@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.ikigaidigital.adapter.in.web.api.TimeDepositsApi;
 import org.ikigaidigital.adapter.in.web.model.TimeDepositDto;
 import org.ikigaidigital.application.port.in.GetAllTimeDepositsUseCase;
+import org.ikigaidigital.application.port.in.UpdateBalancesUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +15,7 @@ import java.util.List;
 class TimeDepositController implements TimeDepositsApi {
 
     private final GetAllTimeDepositsUseCase getAllTimeDepositsUseCase;
+    private final UpdateBalancesUseCase updateBalancesUseCase;
     private final TimeDepositWebMapper mapper;
 
     @Override
@@ -22,5 +24,11 @@ class TimeDepositController implements TimeDepositsApi {
                 .map(mapper::toDto)
                 .toList();
         return ResponseEntity.ok(timeDeposits);
+    }
+
+    @Override
+    public ResponseEntity<Void> updateAllTimeDepositBalances() {
+        updateBalancesUseCase.updateBalances();
+        return ResponseEntity.ok().build();
     }
 }

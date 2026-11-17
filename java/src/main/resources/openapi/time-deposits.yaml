@@ -22,6 +22,19 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TimeDeposit'
+  /time-deposits/balance-updates:
+    post:
+      tags:
+        - TimeDeposits
+      operationId: updateAllTimeDepositBalances
+      summary: Apply one month of interest to all time deposits
+      description: >
+        Applies one month of interest to the balance of every time deposit.
+        Interest is applied at most once per calendar month; repeated calls within the same
+        month are no-ops and also return 200, so retries can never credit interest twice.
+      responses:
+        '200':
+          description: Interest for the current month has been applied (now or by an earlier call).
 components:
   schemas:
     TimeDeposit:
