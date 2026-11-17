@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: time-deposit
+  datasource:
+    url: jdbc:postgresql://localhost:5432/timedeposits
+    username: timedeposits
+    password: timedeposits
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
