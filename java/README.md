@@ -118,12 +118,13 @@ mvn test      # unit + web tests, no Docker needed
 mvn verify    # also the integration tests; Testcontainers starts its own throwaway PostgreSQL
 ```
 
-On Colima, Testcontainers can't find Docker on its own, so export these first:
+On Colima, Testcontainers can't find Docker on its own. Tell it where the socket is, once per machine:
 
 ```bash
-export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
-export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+echo "docker.host=unix://$HOME/.colima/default/docker.sock" >> ~/.testcontainers.properties
 ```
+
+(The other Colima setting, the socket path inside the VM, is already set for the tests in `pom.xml`.)
 
 ## How it's built
 
