@@ -4,6 +4,7 @@ import org.ikigaidigital.TimeDeposit;
 import org.ikigaidigital.application.port.out.TimeDepositRepository;
 import org.ikigaidigital.domain.TimeDepositNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +20,13 @@ class TimeDepositPersistenceAdapter implements TimeDepositRepository {
     private final TimeDepositJpaRepository jpaRepository;
     private final TimeDepositMapper mapper;
 
+    private static final Sort BY_ID = Sort.by("id");
+
+    // Sorted so the API returns a stable order; PostgreSQL row order changes after updates.
     @Override
     @Transactional(readOnly = true)
     public List<TimeDeposit> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findAll(BY_ID).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
