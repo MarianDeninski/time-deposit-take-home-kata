@@ -1,8 +1,8 @@
 package org.ikigaidigital.adapter.in.web;
 
 import org.ikigaidigital.TimeDeposit;
-import org.ikigaidigital.adapter.in.web.model.TimeDepositDto;
-import org.ikigaidigital.adapter.in.web.model.WithdrawalDto;
+import org.ikigaidigital.adapter.in.web.dto.TimeDepositDto;
+import org.ikigaidigital.adapter.in.web.dto.WithdrawalDto;
 import org.ikigaidigital.application.port.in.TimeDepositWithWithdrawals;
 import org.ikigaidigital.domain.Withdrawal;
 import org.springframework.stereotype.Component;
