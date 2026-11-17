@@ -41,6 +41,11 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <!-- spring-boot-starter-test brings JUnit 5 and AssertJ, replacing the previous standalone versions -->
         <dependency>
